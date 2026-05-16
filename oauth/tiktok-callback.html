@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TikTok OAuth — VaultDigitals</title>
+<style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #0d2b4d;
+    color: #f4f1ec;
+    min-height: 100vh;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+  .card {
+    background: #14385f;
+    max-width: 640px;
+    width: 100%;
+    padding: 2.5rem 2.5rem 2rem;
+    border-radius: 14px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+  }
+  h1 {
+    margin: 0 0 0.5rem;
+    color: #fff;
+    font-size: 1.4rem;
+  }
+  .accent { color: #e85a4f; }
+  .subtitle { color: #b3c2d3; margin: 0 0 1.5rem; font-size: 0.92rem; }
+  .status {
+    padding: 0.9rem 1rem;
+    border-radius: 8px;
+    margin: 1rem 0 1.25rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+  .ok    { background: #1f6638; color: #c4f0d2; }
+  .err   { background: #6b2222; color: #f0c4c4; }
+  .code-block {
+    background: #0d2b4d;
+    border: 1px solid #2d4870;
+    border-radius: 8px;
+    padding: 0.9rem 1rem;
+    font-family: 'SFMono-Regular', Consolas, monospace;
+    font-size: 0.82rem;
+    color: #d8e0eb;
+    word-break: break-all;
+    margin: 0.4rem 0 1rem;
+    line-height: 1.5;
+  }
+  .label {
+    display: block;
+    color: #b3c2d3;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin: 1rem 0 0.25rem;
+    font-weight: 600;
+  }
+  button {
+    background: #e85a4f;
+    color: white;
+    border: none;
+    padding: 0.55rem 1.1rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    font-weight: 600;
+    margin-top: 0.4rem;
+  }
+  button:hover { background: #f0786d; }
+  button.copied { background: #2ea36b; }
+  .footer { color: #7d92ab; font-size: 0.78rem; margin-top: 1.5rem; }
+  .footer a { color: #e85a4f; text-decoration: none; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>TikTok OAuth <span class="accent">·</span> VaultDigitals</h1>
+    <p class="subtitle">If you arrived here from authorizing the VaultDigitals app on TikTok, copy the values below and paste them into the terminal.</p>
+
+    <div id="status" class="status">Waiting for callback...</div>
+
+    <span class="label">Authorization Code</span>
+    <div id="code-block" class="code-block">—</div>
+    <button id="copy-code">Copy code</button>
+
+    <span class="label">State (anti-CSRF)</span>
+    <div id="state-block" class="code-block">—</div>
+
+    <p class="footer">
+      Internal authorization page for VaultDigitals' own brand TikTok integration.
+      <br><br>
+      <a href="../index.html">VaultDigitals home</a>
+    </p>
+  </div>
+
+<script>
+(function () {
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get('code');
+  const state = params.get('state');
+  const scopes = params.get('scopes');
+  const error = params.get('error') || params.get('error_description');
+
+  const statusEl = document.getElementById('status');
+  const codeEl = document.getElementById('code-block');
+  const stateEl = document.getElementById('state-block');
+  const copyBtn = document.getElementById('copy-code');
+
+  if (error) {
+    statusEl.className = 'status err';
+    statusEl.textContent = 'Authorization failed: ' + error;
+    return;
+  }
+
+  if (!code) {
+    statusEl.className = 'status err';
+    statusEl.textContent = 'No authorization code present in URL. Open this page from a TikTok OAuth redirect.';
+    return;
+  }
+
+  statusEl.className = 'status ok';
+  statusEl.textContent = '✓ Authorization successful. Copy the code below and paste into the terminal.';
+  codeEl.textContent = code;
+  stateEl.textContent = state || '(none)';
+
+  copyBtn.addEventListener('click', () => {
+    navigator.clipboard.writeText(code).then(() => {
+      copyBtn.textContent = 'Copied ✓';
+      copyBtn.classList.add('copied');
+      setTimeout(() => {
+        copyBtn.textContent = 'Copy code';
+        copyBtn.classList.remove('copied');
+      }, 2000);
+    });
+  });
+})();
+</script>
+</body>
+</html>
